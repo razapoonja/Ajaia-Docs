@@ -125,9 +125,9 @@ class DatabaseSeeder extends Seeder
             <h1>API design notes</h1>
             <p>Every document route goes through <code>DocumentPolicy</code>. Sharing uses an upsert so re-sharing changes the role instead of duplicating it.</p>
             <pre><code>$document-&gt;shares()-&gt;updateOrCreate(
-    ['user_id' =&gt; $collaborator-&gt;id],
-    ['role' =&gt; $role],
-);</code></pre>
+                ['user_id' =&gt; $collaborator-&gt;id],
+                ['role' =&gt; $role],
+            );</code></pre>
             <p>Content is sanitized on write by <code>SanitizeDocumentHtml</code>.</p>
             HTML);
     }
@@ -156,7 +156,7 @@ class DatabaseSeeder extends Seeder
         foreach ($titles as $index => $title) {
             $owner = $members[$index % $members->count()];
             $daysAgo = 29 - (int) round($index * 28 / (count($titles) - 1));
-            $document = $this->document($owner, $title, $daysAgo, '<p>'.fake()->paragraph(4).'</p><ul><li><p>'.fake()->sentence().'</p></li><li><p>'.fake()->sentence().'</p></li></ul>');
+            $document = $this->document($owner, $title, $daysAgo, $this->teamDocumentBody($title));
 
             $members->reject(fn (User $user) => $user->is($owner))
                 ->shuffle()
@@ -165,9 +165,32 @@ class DatabaseSeeder extends Seeder
         }
 
         foreach ([['Design system audit', 'maya', ShareRole::Editor, 8], ['Quarterly OKRs', 'daniel', ShareRole::Editor, 11], ['Security review checklist', 'omar', ShareRole::Viewer, 2]] as [$title, $owner, $role, $daysAgo]) {
-            $document = $this->document($team[$owner], $title, $daysAgo, '<h1>'.$title.'</h1><p>'.fake()->paragraph(5).'</p>');
+            $document = $this->document($team[$owner], $title, $daysAgo, $this->teamDocumentBody($title));
             $this->share($document, $alice, $role, $daysAgo);
         }
+    }
+
+    private function teamDocumentBody(string $title): string
+    {
+        $openers = [
+            'This is the working draft. Leave suggestions inline and the owner will fold them in on Friday.',
+            'Summary of where things stand, what changed since last week, and what we need decided.',
+            'A short plan with owners and dates. Anything without an owner is not happening yet.',
+            'Notes from the last session, cleaned up so people who missed it can catch up in five minutes.',
+        ];
+
+        $points = [
+            'Agree on the scope before the next review.',
+            'Keep the first version small and ship it.',
+            'Write down the decision and who made it.',
+            'Flag anything blocked for more than two days.',
+            'Link the source instead of copying it here.',
+            'Check the numbers with finance before sharing.',
+        ];
+
+        $picked = collect($points)->shuffle()->take(3)->map(fn (string $point) => "<li><p>{$point}</p></li>")->implode('');
+
+        return '<h1>'.e($title).'</h1><p>'.$openers[array_rand($openers)].'</p><ul>'.$picked.'</ul>';
     }
 
     private function document(User $owner, string $title, int $daysAgo, string $content): Document
