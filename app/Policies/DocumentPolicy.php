@@ -9,6 +9,14 @@ use App\Models\User;
 class DocumentPolicy
 {
     /**
+     * Admins bypass every check so they can manage documents from the admin panel.
+     */
+    public function before(User $user): ?bool
+    {
+        return $user->is_admin ? true : null;
+    }
+
+    /**
      * Owner or anyone the document has been shared with may view it.
      */
     public function view(User $user, Document $document): bool

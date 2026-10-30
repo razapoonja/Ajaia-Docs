@@ -15,10 +15,11 @@ class DatabaseSeeder extends Seeder
     /**
      * Three demo accounts (password: "password") with a few documents
      * and shares so reviewers can see owned vs shared behaviour immediately.
+     * Alice is also an admin and can open /admin.
      */
     public function run(): void
     {
-        $alice = User::factory()->create(['name' => 'Alice Owner', 'email' => 'alice@example.com']);
+        $alice = User::factory()->create(['name' => 'Alice Owner', 'email' => 'alice@example.com', 'is_admin' => true]);
         $bob = User::factory()->create(['name' => 'Bob Editor', 'email' => 'bob@example.com']);
         $carol = User::factory()->create(['name' => 'Carol Viewer', 'email' => 'carol@example.com']);
 
