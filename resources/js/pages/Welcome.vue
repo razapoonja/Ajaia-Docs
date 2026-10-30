@@ -79,11 +79,11 @@ const details = [
 
         <main>
             <!-- Hero: the page is a document -->
-            <section class="px-4 pt-6 pb-24 sm:px-8 lg:px-12 lg:pt-10" aria-labelledby="hero-title">
+            <section class="px-4 pt-2 pb-16 sm:px-8 sm:pt-6 sm:pb-24 lg:px-12 lg:pt-10" aria-labelledby="hero-title">
                 <div class="mx-auto grid max-w-6xl gap-6 xl:grid-cols-[minmax(0,1fr)_15rem]">
                     <div>
-                        <div class="mb-3 flex items-center justify-between gap-4 px-1">
-                            <p class="truncate text-sm text-muted-foreground">Welcome to Ajaia Docs</p>
+                        <div class="mb-3 flex items-center justify-end gap-4 px-1 sm:justify-between">
+                            <p class="hidden truncate text-sm text-muted-foreground sm:block">Welcome to Ajaia Docs</p>
                             <div class="flex items-center gap-3">
                                 <div class="flex -space-x-2" aria-hidden="true">
                                     <span
@@ -116,8 +116,8 @@ const details = [
                                 </span>
                             </div>
 
-                            <div class="px-6 py-12 sm:px-14 sm:py-16 lg:px-20 lg:py-20">
-                                <h1 id="hero-title" class="max-w-[14ch] text-5xl leading-[1.02] font-semibold tracking-[-0.035em] sm:text-6xl lg:text-7xl">
+                            <div class="px-5 py-10 sm:px-14 sm:py-16 lg:px-20 lg:py-20">
+                                <h1 id="hero-title" class="max-w-[14ch] text-[2.6rem] leading-[1.04] font-semibold tracking-[-0.035em] sm:text-6xl lg:text-7xl">
                                     Write together, without the clutter.<span class="caret" aria-hidden="true" />
                                 </h1>
 
@@ -168,7 +168,7 @@ const details = [
             </section>
 
             <!-- One document, three people -->
-            <section class="border-t bg-background px-4 py-24 sm:px-8 lg:px-12" aria-labelledby="roles-title">
+            <section class="border-t bg-background px-4 py-16 sm:px-8 sm:py-24 lg:px-12" aria-labelledby="roles-title">
                 <div class="mx-auto max-w-6xl">
                     <div class="max-w-2xl">
                         <h2 id="roles-title" class="text-3xl font-semibold tracking-tight sm:text-4xl">One document, three people</h2>
@@ -178,7 +178,7 @@ const details = [
                         </p>
                     </div>
 
-                    <ul class="mt-14 grid gap-10 md:grid-cols-3 md:gap-6">
+                    <ul class="mt-10 grid gap-10 sm:mt-14 md:grid-cols-3 md:gap-6">
                         <li v-for="person in people" :key="person.name">
                             <div class="rounded-xl border bg-card shadow-xs" aria-hidden="true">
                                 <div class="flex items-center justify-between gap-2 border-b px-3 py-2">
@@ -217,7 +217,7 @@ const details = [
             </section>
 
             <!-- Details -->
-            <section class="border-t bg-background px-4 py-24 sm:px-8 lg:px-12" aria-labelledby="details-title">
+            <section class="border-t bg-background px-4 py-16 sm:px-8 sm:py-24 lg:px-12" aria-labelledby="details-title">
                 <div class="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[18rem_minmax(0,1fr)]">
                     <h2 id="details-title" class="text-3xl font-semibold tracking-tight">The rest of it</h2>
                     <dl class="grid gap-x-12 sm:grid-cols-2">
@@ -229,7 +229,7 @@ const details = [
                 </div>
             </section>
 
-            <section class="border-t px-4 py-20 sm:px-8 lg:px-12">
+            <section class="border-t px-4 py-14 sm:px-8 sm:py-20 lg:px-12">
                 <div class="mx-auto flex max-w-6xl flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
                     <p class="text-2xl font-semibold tracking-tight">Start with a blank page.</p>
                     <Button size="lg" as-child>
@@ -242,11 +242,18 @@ const details = [
         </main>
 
         <footer class="border-t px-4 py-8 text-sm text-muted-foreground sm:px-8 lg:px-12">
-            <div class="mx-auto flex max-w-6xl items-center gap-2">
-                <span class="flex size-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
-                    <AppLogoIcon class="size-3.5" />
-                </span>
-                Ajaia Docs
+            <div class="mx-auto flex max-w-6xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="flex size-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
+                        <AppLogoIcon class="size-3.5" />
+                    </span>
+                    Ajaia Docs
+                </div>
+                <nav class="flex flex-wrap gap-x-6 gap-y-2" aria-label="Footer">
+                    <a href="https://github.com/razapoonja/Ajaia-Docs" class="transition-colors hover:text-foreground" target="_blank" rel="noopener noreferrer">Source code</a>
+                    <a href="/admin" class="transition-colors hover:text-foreground">Admin panel</a>
+                    <Link :href="login()" class="transition-colors hover:text-foreground">Log in</Link>
+                </nav>
             </div>
         </footer>
     </div>

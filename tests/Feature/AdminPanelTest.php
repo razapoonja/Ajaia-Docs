@@ -10,12 +10,23 @@ test('a regular user cannot open the admin panel', function () {
     $this->actingAs($user)->get('/admin')->assertForbidden();
 });
 
-test('an admin can manage any document', function () {
+test('an admin follows normal sharing rules in the app', function () {
+    $admin = User::factory()->create(['is_admin' => true]);
+    $document = Document::factory()->create();
+    $document->shares()->create(['user_id' => $admin->id, 'role' => ShareRole::Viewer]);
+
+    $this->actingAs($admin)
+        ->patch(route('documents.update', $document), ['title' => 'Changed by admin'])
+        ->assertForbidden();
+});
+
+test('an admin can open any document in the admin panel', function () {
     $admin = User::factory()->create(['is_admin' => true]);
     $document = Document::factory()->create();
 
-    expect($admin->can('update', $document))->toBeTrue()
-        ->and($admin->can('delete', $document))->toBeTrue();
+    $this->actingAs($admin)
+        ->get("/admin/documents/{$document->id}/edit")
+        ->assertOk();
 });
 
 test('every admin page renders for an admin', function () {

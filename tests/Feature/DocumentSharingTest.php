@@ -81,3 +81,28 @@ test('document content survives a round trip', function () {
         ->get(route('documents.show', $document))
         ->assertInertia(fn ($page) => $page->where('document.content', $html));
 });
+
+test('a viewer can copy a shared document into their own library', function () {
+    $document = Document::factory()->create(['title' => 'Plan', 'content' => '<p>Original</p>']);
+    $viewer = User::factory()->create();
+    $document->shares()->create(['user_id' => $viewer->id, 'role' => ShareRole::Viewer]);
+
+    $this->actingAs($viewer)
+        ->post(route('documents.duplicate', $document))
+        ->assertRedirect();
+
+    $copy = $viewer->ownedDocuments()->first();
+
+    expect($copy)->not->toBeNull()
+        ->and($copy->title)->toBe('Copy of Plan')
+        ->and($copy->content)->toBe('<p>Original</p>')
+        ->and($copy->shares()->count())->toBe(0);
+});
+
+test('a stranger cannot copy a document', function () {
+    $document = Document::factory()->create();
+
+    $this->actingAs(User::factory()->create())
+        ->post(route('documents.duplicate', $document))
+        ->assertForbidden();
+});

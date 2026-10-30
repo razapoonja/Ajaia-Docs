@@ -10,6 +10,7 @@ use App\Models\DocumentShare;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -103,6 +104,24 @@ class DocumentController extends Controller
         $document->update($request->validated());
 
         return back();
+    }
+
+    /**
+     * Anyone who can open a document can copy it into their own library.
+     * The copy belongs to them and starts unshared.
+     */
+    public function duplicate(Request $request, Document $document): RedirectResponse
+    {
+        Gate::authorize('view', $document);
+
+        $copy = $request->user()->ownedDocuments()->create([
+            'title' => Str::limit('Copy of '.$document->title, 200, ''),
+            'content' => $document->content,
+        ]);
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Copy created. It is yours and not shared with anyone.']);
+
+        return to_route('documents.show', $copy);
     }
 
     public function destroy(Document $document): RedirectResponse

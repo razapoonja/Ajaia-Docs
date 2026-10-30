@@ -5,15 +5,18 @@ namespace App\Policies;
 use App\Enums\ShareRole;
 use App\Models\Document;
 use App\Models\User;
+use Filament\Facades\Filament;
 
 class DocumentPolicy
 {
     /**
-     * Admins bypass every check so they can manage documents from the admin panel.
+     * Admins can manage any document, but only inside the admin panel.
+     * In the app they follow the same sharing rules as everyone else,
+     * so a document shared with an admin as a viewer stays read-only.
      */
     public function before(User $user): ?bool
     {
-        return $user->is_admin ? true : null;
+        return $user->is_admin && Filament::isServing() ? true : null;
     }
 
     /**

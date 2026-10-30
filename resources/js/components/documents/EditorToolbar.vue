@@ -84,10 +84,10 @@ function tooltip(tool: Tool): string {
     <div
         role="toolbar"
         aria-label="Formatting"
-        class="sticky top-0 z-10 flex flex-wrap items-center gap-0.5 border-b bg-card/95 px-2 py-1.5 backdrop-blur supports-[backdrop-filter]:bg-card/80"
+        class="sticky top-0 z-10 flex items-center gap-0.5 overflow-x-auto border-b bg-card/95 px-2 py-1.5 backdrop-blur [scrollbar-width:none] supports-[backdrop-filter]:bg-card/80 sm:flex-wrap sm:overflow-visible"
     >
         <template v-for="(group, index) in groups" :key="index">
-            <Separator v-if="index > 0" orientation="vertical" class="mx-1 h-5!" />
+            <Separator v-if="index > 0" orientation="vertical" class="mx-1 h-5! shrink-0" />
             <Button
                 v-for="tool in group"
                 :key="tool.label"
@@ -98,7 +98,7 @@ function tooltip(tool: Tool): string {
                 :aria-keyshortcuts="tool.shortcut"
                 :aria-pressed="tool.active ? tool.active() : undefined"
                 :disabled="tool.disabled?.() ?? false"
-                :class="tool.active?.() ? 'bg-accent text-accent-foreground shadow-[inset_0_0_0_1px_var(--border)]' : 'text-muted-foreground hover:text-foreground'"
+                :class="[tool.active?.() ? 'bg-accent text-accent-foreground shadow-[inset_0_0_0_1px_var(--border)]' : 'text-muted-foreground hover:text-foreground', 'shrink-0']"
                 :title="tooltip(tool)"
                 @click="tool.run"
             >

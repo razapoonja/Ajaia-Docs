@@ -43,7 +43,7 @@ const editor = useEditor({
     ],
     editorProps: {
         attributes: {
-            class: 'editor-prose min-h-[65vh] px-6 py-10 outline-none sm:px-12',
+            class: 'editor-prose min-h-[60vh] px-5 py-8 outline-none sm:min-h-[65vh] sm:px-12 sm:py-10',
             'aria-label': 'Document body',
         },
         handleKeyDown: (_view, event) => {
@@ -97,7 +97,7 @@ function removeLink(): void {
 
 watch(
     () => props.editable,
-    (editable) => editor.value?.setEditable(editable),
+    (editable) => editor.value?.setEditable(editable, false),
 );
 
 onBeforeUnmount(() => editor.value?.destroy());

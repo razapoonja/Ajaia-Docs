@@ -122,3 +122,25 @@ test('checklists and safe links survive sanitizing while script links do not', f
         ->not->toContain('onclick')
         ->not->toContain('<input');
 });
+
+test('a forbidden document shows the branded error page', function () {
+    $document = Document::factory()->create();
+
+    $this->actingAs(User::factory()->create())
+        ->get(route('documents.show', $document))
+        ->assertForbidden()
+        ->assertInertia(fn ($page) => $page->component('ErrorPage')->where('status', 403));
+});
+
+test('sharing is rate limited', function () {
+    $owner = User::factory()->create();
+    $document = Document::factory()->for($owner, 'owner')->create();
+
+    foreach (range(1, 30) as $attempt) {
+        $this->actingAs($owner)->post(route('documents.shares.store', $document), ['email' => "probe{$attempt}@example.com", 'role' => 'viewer']);
+    }
+
+    $this->actingAs($owner)
+        ->post(route('documents.shares.store', $document), ['email' => 'probe@example.com', 'role' => 'viewer'])
+        ->assertTooManyRequests();
+});

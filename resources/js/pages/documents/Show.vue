@@ -2,7 +2,7 @@
 import { Head, router, setLayoutProps } from '@inertiajs/vue3';
 import { useEventListener } from '@vueuse/core';
 import { AlertCircle, Check, Loader2, Pencil, Trash2 } from '@lucide/vue';
-import { computed, ref, watchEffect } from 'vue';
+import { computed, onBeforeUnmount, ref, watch, watchEffect } from 'vue';
 import { destroy, index, show, update } from '@/actions/App/Http/Controllers/Documents/DocumentController';
 import DocumentEditor from '@/components/documents/DocumentEditor.vue';
 import ExportMenu from '@/components/documents/ExportMenu.vue';
@@ -50,11 +50,12 @@ const saveLabel = computed<string>(() => ({
     error: 'Could not save. Check your connection and keep typing to retry.',
 })[saveState.value]);
 
-const updateUrl = update.url({ document: props.document.id });
+// Inertia reuses this component when moving between documents, so derive everything from props.
+const updateUrl = computed(() => update.url({ document: props.document.id }));
 
 function persist(payload: Partial<{ title: string; content: string }>): void {
     saveState.value = 'saving';
-    router.patch(updateUrl, payload, {
+    router.patch(updateUrl.value, payload, {
         preserveScroll: true,
         preserveState: true,
         // Autosave only needs to know it worked; skip re-sending the document body.
@@ -65,6 +66,16 @@ function persist(payload: Partial<{ title: string; content: string }>): void {
 }
 
 let saveTimer: ReturnType<typeof setTimeout> | undefined;
+
+watch(
+    () => props.document.id,
+    () => {
+        clearTimeout(saveTimer);
+        title.value = props.document.title;
+        content.value = props.document.content ?? '';
+        saveState.value = 'saved';
+    },
+);
 
 function flushContent(): void {
     clearTimeout(saveTimer);
@@ -88,6 +99,30 @@ useEventListener(window, 'keydown', (event: KeyboardEvent) => {
         }
     }
 });
+
+// Leaving for another page inside the app: finish the pending save first, then continue the visit.
+const stopListeningForVisits = router.on('before', (event) => {
+    const visit = event.detail.visit;
+
+    if (visit.method !== 'get' || saveState.value !== 'dirty' || !props.permissions.update) {
+        return;
+    }
+
+    event.preventDefault();
+    clearTimeout(saveTimer);
+    router.patch(updateUrl.value, { content: content.value }, {
+        preserveScroll: true,
+        preserveState: true,
+        only: ['permissions'],
+        onSuccess: () => {
+            saveState.value = 'saved';
+            router.visit(visit.url);
+        },
+        onError: () => (saveState.value = 'error'),
+    });
+});
+
+onBeforeUnmount(stopListeningForVisits);
 
 useEventListener(window, 'beforeunload', (event: BeforeUnloadEvent) => {
     if (saveState.value === 'dirty' || saveState.value === 'saving') {
@@ -194,7 +229,7 @@ function deleteDocument(): void {
                 </ul>
                 <Badge v-if="!permissions.update" variant="outline">Can view</Badge>
                 <Badge v-else-if="!permissions.share" variant="outline">Can edit</Badge>
-                <ExportMenu :title="title" :content="content" />
+                <ExportMenu :document-id="document.id" :title="title" :content="content" />
                 <ShareDialog v-if="permissions.share" :document-id="document.id" :shares="shares" />
 
                 <Dialog v-if="permissions.delete">
@@ -221,6 +256,7 @@ function deleteDocument(): void {
         </header>
 
         <DocumentEditor
+            :key="document.id"
             :model-value="content"
             :editable="permissions.update"
             @update:model-value="onContentChange"

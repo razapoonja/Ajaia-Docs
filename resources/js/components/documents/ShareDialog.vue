@@ -97,7 +97,7 @@ function remove(share: DocumentShare): void {
                             :aria-invalid="Boolean(form.errors.email)"
                         />
                         <Select v-model="form.role">
-                            <SelectTrigger class="sm:w-36" aria-label="Access level">
+                            <SelectTrigger class="w-full sm:w-36" aria-label="Access level">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -108,7 +108,7 @@ function remove(share: DocumentShare): void {
                     </div>
                     <InputError :message="form.errors.email ?? form.errors.role" />
                 </div>
-                <Button type="submit" :disabled="form.processing" class="sm:justify-self-end">
+                <Button type="submit" :disabled="form.processing" class="w-full sm:w-auto sm:justify-self-end">
                     {{ form.processing ? 'Sharing…' : 'Share' }}
                 </Button>
             </form>
