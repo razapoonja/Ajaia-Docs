@@ -2,18 +2,23 @@
 
 namespace App\Filament\Resources\Users;
 
-use App\Filament\Resources\Users\Pages\ManageUsers;
+use App\Filament\Resources\Users\Pages\CreateUser;
+use App\Filament\Resources\Users\Pages\EditUser;
+use App\Filament\Resources\Users\Pages\ListUsers;
+use App\Filament\Resources\Users\Pages\ViewUser;
+use App\Filament\Resources\Users\RelationManagers\DocumentSharesRelationManager;
+use App\Filament\Resources\Users\RelationManagers\OwnedDocumentsRelationManager;
+use App\Filament\Resources\Users\Schemas\UserForm;
+use App\Filament\Resources\Users\Schemas\UserInfolist;
+use App\Filament\Resources\Users\Tables\UsersTable;
 use App\Models\User;
 use BackedEnum;
-use Filament\Actions\EditAction;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
-use Filament\Tables\Columns\IconColumn;
-use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
+use UnitEnum;
 
 class UserResource extends Resource
 {
@@ -21,34 +26,64 @@ class UserResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUsers;
 
+    protected static string|UnitEnum|null $navigationGroup = 'People';
+
     protected static ?int $navigationSort = 1;
+
+    protected static ?string $recordTitleAttribute = 'name';
 
     public static function form(Schema $schema): Schema
     {
-        return $schema->components([
-            TextInput::make('name')->required()->maxLength(255),
-            TextInput::make('email')->email()->required()->maxLength(255)->unique(ignoreRecord: true),
-            Toggle::make('is_admin')->label('Admin access'),
-        ]);
+        return UserForm::configure($schema);
+    }
+
+    public static function infolist(Schema $schema): Schema
+    {
+        return UserInfolist::configure($schema);
     }
 
     public static function table(Table $table): Table
     {
-        return $table
-            ->columns([
-                TextColumn::make('name')->searchable()->sortable(),
-                TextColumn::make('email')->searchable(),
-                IconColumn::make('is_admin')->label('Admin')->boolean(),
-                TextColumn::make('owned_documents_count')->counts('ownedDocuments')->label('Owns'),
-                TextColumn::make('shared_documents_count')->counts('sharedDocuments')->label('Shared with'),
-                TextColumn::make('created_at')->since()->label('Joined'),
-            ])
-            ->defaultSort('name')
-            ->recordActions([EditAction::make()]);
+        return UsersTable::configure($table);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            OwnedDocumentsRelationManager::class,
+            DocumentSharesRelationManager::class,
+        ];
     }
 
     public static function getPages(): array
     {
-        return ['index' => ManageUsers::route('/')];
+        return [
+            'index' => ListUsers::route('/'),
+            'create' => CreateUser::route('/create'),
+            'view' => ViewUser::route('/{record}'),
+            'edit' => EditUser::route('/{record}/edit'),
+        ];
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return (string) static::getModel()::count();
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['name', 'email'];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        /** @var User $record */
+        return ['Email' => $record->email];
     }
 }

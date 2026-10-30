@@ -59,6 +59,11 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(Document::class, 'owner_id');
     }
 
+    public function documentShares(): HasMany
+    {
+        return $this->hasMany(DocumentShare::class);
+    }
+
     public function sharedDocuments(): BelongsToMany
     {
         return $this->belongsToMany(Document::class, 'document_shares')

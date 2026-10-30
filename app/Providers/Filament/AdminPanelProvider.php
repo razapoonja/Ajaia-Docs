@@ -6,12 +6,16 @@ use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Enums\ThemeMode;
+use Filament\Navigation\NavigationGroup;
+use Filament\Navigation\NavigationItem;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Support\Enums\Width;
-use Filament\Widgets\AccountWidget;
+use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\HtmlString;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -29,9 +33,30 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->brandName('Ajaia Docs admin')
+            ->brandLogo(fn (): HtmlString => new HtmlString(
+                '<span style="display:flex;align-items:center;gap:.5rem;font-size:1rem;font-weight:600;letter-spacing:-.01em;white-space:nowrap">'
+                .'<img src="'.e(asset('favicon.svg')).'" alt="" style="width:1.75rem;height:1.75rem;flex:none">'
+                .'Ajaia Docs <span style="font-weight:400;opacity:.6">admin</span></span>'
+            ))
+            ->brandLogoHeight('2rem')
+            ->favicon(asset('favicon.svg'))
             ->maxContentWidth(Width::Full)
+            ->defaultThemeMode(ThemeMode::Light)
+            ->sidebarCollapsibleOnDesktop()
+            ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
             ->colors([
                 'primary' => Color::Blue,
+                'gray' => Color::Slate,
+            ])
+            ->navigationGroups([
+                NavigationGroup::make('Workspace'),
+                NavigationGroup::make('People'),
+            ])
+            ->navigationItems([
+                NavigationItem::make('Back to app')
+                    ->url('/documents')
+                    ->icon(Heroicon::OutlinedArrowTopRightOnSquare)
+                    ->sort(99),
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
@@ -39,9 +64,6 @@ class AdminPanelProvider extends PanelProvider
                 Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
-            ->widgets([
-                AccountWidget::class,
-            ])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

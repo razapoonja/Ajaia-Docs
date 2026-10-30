@@ -12,7 +12,7 @@ Live demo: _see SUBMISSION.md_
 - Import a `.txt`, `.md` or `.docx` file as a new document (5 MB limit; other types are rejected with a clear message)
 - Share a document with another registered user as **Can view** or **Can edit**; revoke at any time
 - Document list split into "Your documents" and "Shared with you", with role badges
-- Admin panel at `/admin` (Filament) for inspecting users, documents and shares
+- Admin panel at `/admin` (Filament 5): dashboard with stats, activity and access charts; documents, users and shares with view pages, relation managers, filters, tabs, grouping, global search (Ctrl/Cmd+K) and bulk actions (transfer ownership, change access, grant/revoke admin, delete)
 - Every document route is guarded server-side by `DocumentPolicy`
 
 ## Stack
@@ -48,6 +48,8 @@ All seeded accounts use the password `password`.
 | alice@example.com | Owns "Q4 product roadmap" (shared with Bob and Carol) and "Private notes". Admin: can open `/admin`. |
 | bob@example.com | Can **edit** the roadmap. Owns "Meeting notes". |
 | carol@example.com | Can **view** the roadmap only. |
+
+Eight more background accounts and twenty documents spread over the last 30 days are seeded so the admin dashboard has real history. They never share with Alice, Bob or Carol.
 
 Suggested walkthrough: log in as Alice, open the roadmap, share it; log in as Carol and confirm the editor is read-only; log in as Bob and confirm Bob can edit but cannot share or delete.
 
