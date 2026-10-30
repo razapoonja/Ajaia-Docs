@@ -175,8 +175,7 @@
 .editor-prose {
     font-size: 1.0625rem;
     line-height: 1.7;
-    max-width: 72ch;
-    margin-inline: auto;
+    max-width: 80ch;
 }
 
 .editor-prose > * + * {

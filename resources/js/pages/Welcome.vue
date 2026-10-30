@@ -17,7 +17,7 @@ const demoAccounts = [
     <Head title="Welcome" />
 
     <div class="flex min-h-dvh flex-col bg-background text-foreground">
-        <header class="mx-auto flex w-full max-w-5xl items-center justify-between px-4 py-5 sm:px-8">
+        <header class="flex w-full items-center justify-between px-4 py-5 sm:px-8 lg:px-12">
             <div class="flex items-center gap-2 font-semibold">
                 <AppLogoIcon class="size-6 fill-current" />
                 Ajaia Docs
@@ -37,8 +37,8 @@ const demoAccounts = [
             </nav>
         </header>
 
-        <main class="mx-auto flex w-full max-w-5xl flex-1 flex-col justify-center gap-12 px-4 py-12 sm:px-8">
-            <section class="max-w-2xl space-y-5">
+        <main class="flex w-full flex-1 flex-col justify-center gap-12 px-4 py-12 sm:px-8 lg:px-12">
+            <section class="max-w-3xl space-y-5">
                 <h1 class="text-4xl font-semibold tracking-tight sm:text-5xl">
                     Write together, without the clutter.
                 </h1>
@@ -73,7 +73,7 @@ const demoAccounts = [
                 </div>
             </section>
 
-            <section class="max-w-xl rounded-xl border border-dashed p-5 text-sm">
+            <section class="max-w-2xl rounded-xl border border-dashed p-5 text-sm">
                 <p class="font-medium">Reviewing this build?</p>
                 <p class="mt-1 text-muted-foreground">
                     Three seeded accounts share the password

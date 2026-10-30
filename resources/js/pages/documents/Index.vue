@@ -38,7 +38,7 @@ function createDocument(): void {
 <template>
     <Head title="Documents" />
 
-    <div class="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-10 p-4 sm:p-8">
+    <div class="flex w-full flex-1 flex-col gap-10 p-4 sm:p-8 lg:px-10">
         <header class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
                 <h1 class="text-3xl font-semibold tracking-tight">Documents</h1>
