@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
@@ -24,7 +25,7 @@ use Illuminate\Support\Str;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read User $owner
- * @property-read \Illuminate\Database\Eloquent\Relations\Pivot $pivot
+ * @property-read Pivot $pivot
  */
 #[Fillable(['owner_id', 'title', 'content'])]
 class Document extends Model

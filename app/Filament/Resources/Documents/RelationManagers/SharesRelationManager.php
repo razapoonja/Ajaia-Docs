@@ -3,9 +3,9 @@
 namespace App\Filament\Resources\Documents\RelationManagers;
 
 use App\Enums\ShareRole;
-use BackedEnum;
 use App\Models\Document;
 use App\Models\DocumentShare;
+use BackedEnum;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;

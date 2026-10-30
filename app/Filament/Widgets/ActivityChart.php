@@ -4,10 +4,10 @@ namespace App\Filament\Widgets;
 
 use App\Models\Document;
 use App\Models\DocumentShare;
-use Filament\Widgets\ChartWidget;
-use Illuminate\Database\Eloquent\Model;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
+use Filament\Widgets\ChartWidget;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 
 class ActivityChart extends ChartWidget
