@@ -1,10 +1,19 @@
 function slugify(title: string): string {
-    return title.trim().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').toLowerCase() || 'document';
+    return (
+        title
+            .trim()
+            .replace(/[^\w\s-]/g, '')
+            .replace(/\s+/g, '-')
+            .toLowerCase() || 'document'
+    );
 }
 
 function download(filename: string, content: string, type: string): void {
     const url = URL.createObjectURL(new Blob([content], { type }));
-    const link = Object.assign(document.createElement('a'), { href: url, download: filename });
+    const link = Object.assign(document.createElement('a'), {
+        href: url,
+        download: filename,
+    });
     link.click();
     URL.revokeObjectURL(url);
 }
@@ -49,11 +58,24 @@ function listToMarkdown(list: HTMLElement, depth: number): string {
 
     return Array.from(list.children)
         .map((item, index) => {
-            const checkbox = (item as HTMLElement).dataset.checked === 'true' ? '[x] ' : '[ ] ';
-            const marker = ordered ? `${index + 1}.` : isTaskList ? `- ${checkbox.trimEnd()}` : '-';
+            const checkbox =
+                (item as HTMLElement).dataset.checked === 'true'
+                    ? '[x] '
+                    : '[ ] ';
+            const marker = ordered
+                ? `${index + 1}.`
+                : isTaskList
+                  ? `- ${checkbox.trimEnd()}`
+                  : '-';
             const indent = '  '.repeat(depth);
             const text = Array.from(item.childNodes)
-                .filter((child) => !(child instanceof HTMLElement && ['UL', 'OL'].includes(child.tagName)))
+                .filter(
+                    (child) =>
+                        !(
+                            child instanceof HTMLElement &&
+                            ['UL', 'OL'].includes(child.tagName)
+                        ),
+                )
                 .map(inlineToMarkdown)
                 .join('')
                 .trim();
@@ -89,7 +111,10 @@ export function htmlToMarkdown(html: string): string {
                 case 'OL':
                     return listToMarkdown(block as HTMLElement, 0);
                 case 'BLOCKQUOTE':
-                    return text.split('\n').map((line) => `> ${line}`).join('\n');
+                    return text
+                        .split('\n')
+                        .map((line) => `> ${line}`)
+                        .join('\n');
                 case 'PRE':
                     return `\`\`\`\n${block.textContent ?? ''}\n\`\`\``;
                 case 'HR':
@@ -104,7 +129,10 @@ export function htmlToMarkdown(html: string): string {
 }
 
 function escapeHtml(text: string): string {
-    return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
 }
 
 function standaloneHtml(title: string, html: string): string {
@@ -130,11 +158,19 @@ function standaloneHtml(title: string, html: string): string {
 }
 
 export function exportMarkdown(title: string, html: string): void {
-    download(`${slugify(title)}.md`, htmlToMarkdown(html), 'text/markdown;charset=utf-8');
+    download(
+        `${slugify(title)}.md`,
+        htmlToMarkdown(html),
+        'text/markdown;charset=utf-8',
+    );
 }
 
 export function exportHtml(title: string, html: string): void {
-    download(`${slugify(title)}.html`, standaloneHtml(title, html), 'text/html;charset=utf-8');
+    download(
+        `${slugify(title)}.html`,
+        standaloneHtml(title, html),
+        'text/html;charset=utf-8',
+    );
 }
 
 /**
@@ -142,8 +178,11 @@ export function exportHtml(title: string, html: string): void {
  * The HTML has already been sanitized server-side and by the editor schema.
  */
 export function printDocument(title: string, html: string): void {
-    const frame = Object.assign(document.createElement('iframe'), { title: 'Print preview' });
-    frame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0';
+    const frame = Object.assign(document.createElement('iframe'), {
+        title: 'Print preview',
+    });
+    frame.style.cssText =
+        'position:fixed;right:0;bottom:0;width:0;height:0;border:0';
     document.body.appendChild(frame);
 
     const doc = frame.contentDocument;

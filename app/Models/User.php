@@ -54,16 +54,25 @@ class User extends Authenticatable implements FilamentUser
         return $this->is_admin;
     }
 
+    /**
+     * @return HasMany<Document, $this>
+     */
     public function ownedDocuments(): HasMany
     {
         return $this->hasMany(Document::class, 'owner_id');
     }
 
+    /**
+     * @return HasMany<DocumentShare, $this>
+     */
     public function documentShares(): HasMany
     {
         return $this->hasMany(DocumentShare::class);
     }
 
+    /**
+     * @return BelongsToMany<Document, $this>
+     */
     public function sharedDocuments(): BelongsToMany
     {
         return $this->belongsToMany(Document::class, 'document_shares')

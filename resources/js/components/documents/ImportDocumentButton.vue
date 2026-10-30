@@ -20,10 +20,16 @@ async function onChange(event: Event): Promise<void> {
 
     try {
         const imported = await importDocumentFile(file);
-        router.post(store.url(), imported, { onFinish: () => (busy.value = false) });
+        router.post(store.url(), imported, {
+            onFinish: () => (busy.value = false),
+        });
     } catch (error) {
         busy.value = false;
-        toast.error(error instanceof Error ? error.message : 'That file could not be read.');
+        toast.error(
+            error instanceof Error
+                ? error.message
+                : 'That file could not be read.',
+        );
     } finally {
         if (input.value) {
             input.value.value = '';
@@ -42,7 +48,12 @@ async function onChange(event: Event): Promise<void> {
             aria-label="Import a .txt, .md or .docx file"
             @change="onChange"
         />
-        <Button type="button" variant="outline" :disabled="busy" @click="input?.click()">
+        <Button
+            type="button"
+            variant="outline"
+            :disabled="busy"
+            @click="input?.click()"
+        >
             <Upload />
             {{ busy ? 'Importing…' : 'Import file' }}
         </Button>

@@ -39,18 +39,33 @@ const message = computed(() => copy[props.status] ?? copy[500]);
 <template>
     <Head :title="message.title" />
 
-    <div class="flex min-h-dvh flex-col bg-muted px-4 py-6 text-foreground sm:px-8">
-        <Link href="/" class="flex items-center gap-2.5 font-semibold tracking-tight">
-            <span class="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+    <div
+        class="flex min-h-dvh flex-col bg-muted px-4 py-6 text-foreground sm:px-8"
+    >
+        <Link
+            href="/"
+            class="flex items-center gap-2.5 font-semibold tracking-tight"
+        >
+            <span
+                class="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground"
+            >
                 <AppLogoIcon class="size-4.5" />
             </span>
             Ajaia Docs
         </Link>
 
         <main class="flex flex-1 items-center justify-center py-12">
-            <div class="w-full max-w-lg rounded-xl border bg-card p-8 shadow-sm sm:p-10">
-                <p class="font-mono text-sm text-muted-foreground">Error {{ status }}</p>
-                <h1 class="mt-3 text-2xl font-semibold tracking-tight sm:text-3xl">{{ message.title }}</h1>
+            <div
+                class="w-full max-w-lg rounded-xl border bg-card p-8 shadow-sm sm:p-10"
+            >
+                <p class="font-mono text-sm text-muted-foreground">
+                    Error {{ status }}
+                </p>
+                <h1
+                    class="mt-3 text-2xl font-semibold tracking-tight sm:text-3xl"
+                >
+                    {{ message.title }}
+                </h1>
                 <p class="mt-3 text-muted-foreground">{{ message.body }}</p>
                 <div class="mt-8 flex flex-wrap gap-3">
                     <Button as-child>

@@ -6,6 +6,7 @@ use App\Models\Document;
 use App\Models\DocumentShare;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Collection;
 
@@ -24,7 +25,7 @@ class ActivityChart extends ChartWidget
     public ?string $filter = '14';
 
     /**
-     * @return array<string, string>
+     * @return array<int, string>
      */
     protected function getFilters(): ?array
     {
@@ -82,7 +83,7 @@ class ActivityChart extends ChartWidget
 
     /**
      * @param  class-string<Model>  $model
-     * @param  Collection<int, CarbonInterface>  $period
+     * @param  Collection<int, CarbonImmutable>  $period
      * @return array<int, int>
      */
     private function series(string $model, CarbonInterface $start, Collection $period): array

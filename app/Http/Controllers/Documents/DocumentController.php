@@ -51,7 +51,7 @@ class DocumentController extends Controller
                 'excerpt' => $document->excerpt(),
                 'updated_at' => $document->updated_at,
                 'owner' => $document->owner->name,
-                'role' => $document->pivot->role,
+                'role' => $document->pivot->getAttribute('role'),
             ]),
         ]);
     }

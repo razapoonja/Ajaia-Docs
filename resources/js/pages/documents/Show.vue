@@ -3,7 +3,12 @@ import { Head, router, setLayoutProps } from '@inertiajs/vue3';
 import { useEventListener } from '@vueuse/core';
 import { AlertCircle, Check, Loader2, Pencil, Trash2 } from '@lucide/vue';
 import { computed, onBeforeUnmount, ref, watch, watchEffect } from 'vue';
-import { destroy, index, show, update } from '@/actions/App/Http/Controllers/Documents/DocumentController';
+import {
+    destroy,
+    index,
+    show,
+    update,
+} from '@/actions/App/Http/Controllers/Documents/DocumentController';
 import DocumentEditor from '@/components/documents/DocumentEditor.vue';
 import ExportMenu from '@/components/documents/ExportMenu.vue';
 import ShareDialog from '@/components/documents/ShareDialog.vue';
@@ -18,14 +23,17 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
-import type { DocumentDetail, DocumentPermissions, DocumentShare } from '@/types';
+import type {
+    DocumentDetail,
+    DocumentPermissions,
+    DocumentShare,
+} from '@/types';
 
 const props = defineProps<{
     document: DocumentDetail;
     permissions: DocumentPermissions;
     shares: DocumentShare[];
 }>();
-
 
 type SaveState = 'saved' | 'dirty' | 'saving' | 'error';
 
@@ -43,12 +51,15 @@ watchEffect(() => {
 const saveState = ref<SaveState>('saved');
 const deleting = ref(false);
 
-const saveLabel = computed<string>(() => ({
-    saved: 'Saved',
-    dirty: 'Unsaved changes',
-    saving: 'Saving…',
-    error: 'Could not save. Check your connection and keep typing to retry.',
-})[saveState.value]);
+const saveLabel = computed<string>(
+    () =>
+        ({
+            saved: 'Saved',
+            dirty: 'Unsaved changes',
+            saving: 'Saving…',
+            error: 'Could not save. Check your connection and keep typing to retry.',
+        })[saveState.value],
+);
 
 // Inertia reuses this component when moving between documents, so derive everything from props.
 const updateUrl = computed(() => update.url({ document: props.document.id }));
@@ -104,22 +115,30 @@ useEventListener(window, 'keydown', (event: KeyboardEvent) => {
 const stopListeningForVisits = router.on('before', (event) => {
     const visit = event.detail.visit;
 
-    if (visit.method !== 'get' || saveState.value !== 'dirty' || !props.permissions.update) {
+    if (
+        visit.method !== 'get' ||
+        saveState.value !== 'dirty' ||
+        !props.permissions.update
+    ) {
         return;
     }
 
     event.preventDefault();
     clearTimeout(saveTimer);
-    router.patch(updateUrl.value, { content: content.value }, {
-        preserveScroll: true,
-        preserveState: true,
-        only: ['permissions'],
-        onSuccess: () => {
-            saveState.value = 'saved';
-            router.visit(visit.url);
+    router.patch(
+        updateUrl.value,
+        { content: content.value },
+        {
+            preserveScroll: true,
+            preserveState: true,
+            only: ['permissions'],
+            onSuccess: () => {
+                saveState.value = 'saved';
+                router.visit(visit.url);
+            },
+            onError: () => (saveState.value = 'error'),
         },
-        onError: () => (saveState.value = 'error'),
-    });
+    );
 });
 
 onBeforeUnmount(stopListeningForVisits);
@@ -131,7 +150,11 @@ useEventListener(window, 'beforeunload', (event: BeforeUnloadEvent) => {
 });
 
 const collaborators = computed(() => [
-    { id: props.document.owner.id, name: props.document.owner.name, label: 'Owner' },
+    {
+        id: props.document.owner.id,
+        name: props.document.owner.name,
+        label: 'Owner',
+    },
     ...props.shares.map((share) => ({
         id: share.user.id,
         name: share.user.name,
@@ -174,7 +197,9 @@ function deleteDocument(): void {
     <Head :title="title" />
 
     <div class="flex w-full flex-1 flex-col gap-5 p-4 sm:p-8 lg:px-10">
-        <header class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <header
+            class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"
+        >
             <div class="min-w-0 flex-1">
                 <div v-if="permissions.update" class="group relative -ml-2">
                     <input
@@ -182,18 +207,27 @@ function deleteDocument(): void {
                         type="text"
                         maxlength="200"
                         aria-label="Document title"
-                        class="w-full truncate rounded-md bg-transparent py-1 pr-8 pl-2 text-2xl font-semibold tracking-tight outline-none transition-colors hover:bg-accent/50 focus-visible:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring/40"
+                        class="w-full truncate rounded-md bg-transparent py-1 pr-8 pl-2 text-2xl font-semibold tracking-tight transition-colors outline-none hover:bg-accent/50 focus-visible:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring/40"
                         @blur="onTitleBlur"
-                        @keydown.enter.prevent="($event.target as HTMLInputElement).blur()"
+                        @keydown.enter.prevent="
+                            ($event.target as HTMLInputElement).blur()
+                        "
                     />
                     <Pencil
-                        class="pointer-events-none absolute top-1/2 right-2 size-4 -translate-y-1/2 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-0"
+                        class="pointer-events-none absolute top-1/2 right-2 size-4 -translate-y-1/2 text-muted-foreground opacity-0 transition-opacity group-focus-within:opacity-0 group-hover:opacity-100"
                         aria-hidden="true"
                     />
                 </div>
-                <h1 v-else class="truncate text-2xl font-semibold tracking-tight">{{ title }}</h1>
+                <h1
+                    v-else
+                    class="truncate text-2xl font-semibold tracking-tight"
+                >
+                    {{ title }}
+                </h1>
 
-                <p class="mt-1.5 flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
+                <p
+                    class="mt-1.5 flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground"
+                >
                     <span>Owned by {{ document.owner.name }}</span>
                     <span aria-hidden="true">·</span>
                     <span
@@ -201,22 +235,41 @@ function deleteDocument(): void {
                         class="inline-flex items-center gap-1"
                         :class="saveState === 'error' ? 'text-destructive' : ''"
                     >
-                        <Loader2 v-if="saveState === 'saving'" class="size-3 animate-spin" aria-hidden="true" />
-                        <AlertCircle v-else-if="saveState === 'error'" class="size-3" aria-hidden="true" />
-                        <Check v-else-if="saveState === 'saved'" class="size-3" aria-hidden="true" />
+                        <Loader2
+                            v-if="saveState === 'saving'"
+                            class="size-3 animate-spin"
+                            aria-hidden="true"
+                        />
+                        <AlertCircle
+                            v-else-if="saveState === 'error'"
+                            class="size-3"
+                            aria-hidden="true"
+                        />
+                        <Check
+                            v-else-if="saveState === 'saved'"
+                            class="size-3"
+                            aria-hidden="true"
+                        />
                         {{ saveLabel }}
                     </span>
                 </p>
             </div>
 
             <div class="flex shrink-0 items-center gap-2">
-                <ul class="mr-1 flex -space-x-2" aria-label="People with access">
+                <ul
+                    class="mr-1 flex -space-x-2"
+                    aria-label="People with access"
+                >
                     <li
                         v-for="person in collaborators.slice(0, 4)"
                         :key="person.id"
                         :title="`${person.name} · ${person.label}`"
                         class="flex size-8 items-center justify-center rounded-full border-2 border-background text-[0.65rem] font-semibold"
-                        :class="person.label === 'Owner' ? 'bg-primary text-primary-foreground' : 'bg-accent text-accent-foreground'"
+                        :class="
+                            person.label === 'Owner'
+                                ? 'bg-primary text-primary-foreground'
+                                : 'bg-accent text-accent-foreground'
+                        "
                     >
                         {{ initials(person.name) }}
                     </li>
@@ -227,14 +280,31 @@ function deleteDocument(): void {
                         +{{ collaborators.length - 4 }}
                     </li>
                 </ul>
-                <Badge v-if="!permissions.update" variant="outline">Can view</Badge>
-                <Badge v-else-if="!permissions.share" variant="outline">Can edit</Badge>
-                <ExportMenu :document-id="document.id" :title="title" :content="content" />
-                <ShareDialog v-if="permissions.share" :document-id="document.id" :shares="shares" />
+                <Badge v-if="!permissions.update" variant="outline"
+                    >Can view</Badge
+                >
+                <Badge v-else-if="!permissions.share" variant="outline"
+                    >Can edit</Badge
+                >
+                <ExportMenu
+                    :document-id="document.id"
+                    :title="title"
+                    :content="content"
+                />
+                <ShareDialog
+                    v-if="permissions.share"
+                    :document-id="document.id"
+                    :shares="shares"
+                />
 
                 <Dialog v-if="permissions.delete">
                     <DialogTrigger as-child>
-                        <Button variant="ghost" size="icon-sm" aria-label="Delete document" class="text-muted-foreground hover:text-destructive">
+                        <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            aria-label="Delete document"
+                            class="text-muted-foreground hover:text-destructive"
+                        >
                             <Trash2 />
                         </Button>
                     </DialogTrigger>
@@ -242,11 +312,16 @@ function deleteDocument(): void {
                         <DialogHeader>
                             <DialogTitle>Delete "{{ title }}"?</DialogTitle>
                             <DialogDescription>
-                                This removes the document for you and everyone it is shared with. There is no undo.
+                                This removes the document for you and everyone
+                                it is shared with. There is no undo.
                             </DialogDescription>
                         </DialogHeader>
                         <DialogFooter>
-                            <Button variant="destructive" :disabled="deleting" @click="deleteDocument">
+                            <Button
+                                variant="destructive"
+                                :disabled="deleting"
+                                @click="deleteDocument"
+                            >
                                 {{ deleting ? 'Deleting…' : 'Delete document' }}
                             </Button>
                         </DialogFooter>

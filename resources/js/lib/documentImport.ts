@@ -33,11 +33,19 @@ function plainTextToHtml(text: string): string {
  * Turns a .txt, .md or .docx file into editor-ready HTML.
  * Parsing happens in the browser so the server only ever receives text.
  */
-export async function importDocumentFile(file: File): Promise<ImportedDocument> {
+export async function importDocumentFile(
+    file: File,
+): Promise<ImportedDocument> {
     const extension = extensionOf(file);
 
-    if (!SUPPORTED_EXTENSIONS.includes(extension as (typeof SUPPORTED_EXTENSIONS)[number])) {
-        throw new Error(`"${file.name}" isn't supported. Upload a .txt, .md or .docx file.`);
+    if (
+        !SUPPORTED_EXTENSIONS.includes(
+            extension as (typeof SUPPORTED_EXTENSIONS)[number],
+        )
+    ) {
+        throw new Error(
+            `"${file.name}" isn't supported. Upload a .txt, .md or .docx file.`,
+        );
     }
 
     if (file.size > MAX_IMPORT_BYTES) {
@@ -49,7 +57,9 @@ export async function importDocumentFile(file: File): Promise<ImportedDocument> 
 
     if (extension === 'docx') {
         const mammoth = await import('mammoth');
-        const { value } = await mammoth.convertToHtml({ arrayBuffer: await file.arrayBuffer() });
+        const { value } = await mammoth.convertToHtml({
+            arrayBuffer: await file.arrayBuffer(),
+        });
 
         return { title, content: value };
     }

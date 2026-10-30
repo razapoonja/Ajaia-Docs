@@ -11,7 +11,11 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { exportHtml, exportMarkdown, printDocument } from '@/lib/documentExport';
+import {
+    exportHtml,
+    exportMarkdown,
+    printDocument,
+} from '@/lib/documentExport';
 
 const props = defineProps<{
     documentId: number;
@@ -27,7 +31,13 @@ function makeCopy(): void {
 <template>
     <DropdownMenu>
         <DropdownMenuTrigger as-child>
-            <Button variant="ghost" size="icon-sm" aria-label="Copy or export" title="Copy or export" class="text-muted-foreground">
+            <Button
+                variant="ghost"
+                size="icon-sm"
+                aria-label="Copy or export"
+                title="Copy or export"
+                class="text-muted-foreground"
+            >
                 <Download />
             </Button>
         </DropdownMenuTrigger>
@@ -37,13 +47,22 @@ function makeCopy(): void {
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuLabel>Export</DropdownMenuLabel>
-            <DropdownMenuItem class="cursor-pointer" @select="exportMarkdown(props.title, props.content)">
+            <DropdownMenuItem
+                class="cursor-pointer"
+                @select="exportMarkdown(props.title, props.content)"
+            >
                 <FileText /> Markdown (.md)
             </DropdownMenuItem>
-            <DropdownMenuItem class="cursor-pointer" @select="exportHtml(props.title, props.content)">
+            <DropdownMenuItem
+                class="cursor-pointer"
+                @select="exportHtml(props.title, props.content)"
+            >
                 <FileCode /> Web page (.html)
             </DropdownMenuItem>
-            <DropdownMenuItem class="cursor-pointer" @select="printDocument(props.title, props.content)">
+            <DropdownMenuItem
+                class="cursor-pointer"
+                @select="printDocument(props.title, props.content)"
+            >
                 <Printer /> Print or save as PDF
             </DropdownMenuItem>
         </DropdownMenuContent>

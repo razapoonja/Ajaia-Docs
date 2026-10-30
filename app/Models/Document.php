@@ -24,6 +24,7 @@ use Illuminate\Support\Str;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read User $owner
+ * @property-read \Illuminate\Database\Eloquent\Relations\Pivot $pivot
  */
 #[Fillable(['owner_id', 'title', 'content'])]
 class Document extends Model
@@ -41,16 +42,25 @@ class Document extends Model
         return Attribute::make(set: fn (?string $value): ?string => app(SanitizeDocumentHtml::class)($value));
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function owner(): BelongsTo
     {
         return $this->belongsTo(User::class, 'owner_id');
     }
 
+    /**
+     * @return HasMany<DocumentShare, $this>
+     */
     public function shares(): HasMany
     {
         return $this->hasMany(DocumentShare::class);
     }
 
+    /**
+     * @return BelongsToMany<User, $this>
+     */
     public function sharedWith(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'document_shares')

@@ -33,12 +33,18 @@ const editor = useEditor({
                 autolink: true,
                 defaultProtocol: 'https',
                 protocols: ['http', 'https', 'mailto'],
-                HTMLAttributes: { rel: 'noopener noreferrer nofollow', target: '_blank' },
+                HTMLAttributes: {
+                    rel: 'noopener noreferrer nofollow',
+                    target: '_blank',
+                },
             },
         }),
         TaskList,
         TaskItem.configure({ nested: true }),
-        Placeholder.configure({ placeholder: 'Start writing, or type # for a heading, - for a list, [ ] for a checklist…' }),
+        Placeholder.configure({
+            placeholder:
+                'Start writing, or type # for a heading, - for a list, [ ] for a checklist…',
+        }),
         CharacterCount,
     ],
     editorProps: {
@@ -47,7 +53,10 @@ const editor = useEditor({
             'aria-label': 'Document body',
         },
         handleKeyDown: (_view, event) => {
-            if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+            if (
+                (event.ctrlKey || event.metaKey) &&
+                event.key.toLowerCase() === 'k'
+            ) {
                 event.preventDefault();
                 openLinkDialog();
 
@@ -64,11 +73,16 @@ const editor = useEditor({
     },
 });
 
-function updateCounts(storage: { words: () => number; characters: () => number }): void {
+function updateCounts(storage: {
+    words: () => number;
+    characters: () => number;
+}): void {
     counts.value = { words: storage.words(), characters: storage.characters() };
 }
 
-const minutes = computed(() => Math.max(1, Math.round(counts.value.words / 200)));
+const minutes = computed(() =>
+    Math.max(1, Math.round(counts.value.words / 200)),
+);
 
 function openLinkDialog(): void {
     if (!editor.value || !props.editable) {
@@ -83,7 +97,13 @@ function saveLink(url: string): void {
     const chain = editor.value?.chain().focus().extendMarkRange('link');
 
     if (editor.value?.state.selection.empty && !editor.value.isActive('link')) {
-        chain?.insertContent({ type: 'text', text: url, marks: [{ type: 'link', attrs: { href: url } }] }).run();
+        chain
+            ?.insertContent({
+                type: 'text',
+                text: url,
+                marks: [{ type: 'link', attrs: { href: url } }],
+            })
+            .run();
 
         return;
     }
@@ -105,7 +125,11 @@ onBeforeUnmount(() => editor.value?.destroy());
 
 <template>
     <div class="overflow-hidden rounded-xl border bg-card shadow-xs">
-        <EditorToolbar v-if="editor && editable" :editor="editor" @link="openLinkDialog" />
+        <EditorToolbar
+            v-if="editor && editable"
+            :editor="editor"
+            @link="openLinkDialog"
+        />
         <div
             v-else-if="!editable"
             class="flex items-center gap-2 border-b bg-muted/40 px-4 py-2 text-sm text-muted-foreground"
@@ -121,11 +145,37 @@ onBeforeUnmount(() => editor.value?.destroy());
         >
             <button
                 v-for="item in [
-                    { label: 'Bold', icon: Bold, mark: 'bold', run: () => editor?.chain().focus().toggleBold().run() },
-                    { label: 'Italic', icon: Italic, mark: 'italic', run: () => editor?.chain().focus().toggleItalic().run() },
-                    { label: 'Underline', icon: Underline, mark: 'underline', run: () => editor?.chain().focus().toggleUnderline().run() },
-                    { label: 'Strikethrough', icon: Strikethrough, mark: 'strike', run: () => editor?.chain().focus().toggleStrike().run() },
-                    { label: 'Link', icon: Link, mark: 'link', run: openLinkDialog },
+                    {
+                        label: 'Bold',
+                        icon: Bold,
+                        mark: 'bold',
+                        run: () => editor?.chain().focus().toggleBold().run(),
+                    },
+                    {
+                        label: 'Italic',
+                        icon: Italic,
+                        mark: 'italic',
+                        run: () => editor?.chain().focus().toggleItalic().run(),
+                    },
+                    {
+                        label: 'Underline',
+                        icon: Underline,
+                        mark: 'underline',
+                        run: () =>
+                            editor?.chain().focus().toggleUnderline().run(),
+                    },
+                    {
+                        label: 'Strikethrough',
+                        icon: Strikethrough,
+                        mark: 'strike',
+                        run: () => editor?.chain().focus().toggleStrike().run(),
+                    },
+                    {
+                        label: 'Link',
+                        icon: Link,
+                        mark: 'link',
+                        run: openLinkDialog,
+                    },
                 ]"
                 :key="item.label"
                 type="button"
@@ -133,7 +183,11 @@ onBeforeUnmount(() => editor.value?.destroy());
                 :aria-pressed="editor.isActive(item.mark)"
                 :title="item.label"
                 class="flex size-8 cursor-pointer items-center justify-center rounded-md transition-colors hover:bg-accent"
-                :class="editor.isActive(item.mark) ? 'bg-accent text-accent-foreground' : 'text-muted-foreground'"
+                :class="
+                    editor.isActive(item.mark)
+                        ? 'bg-accent text-accent-foreground'
+                        : 'text-muted-foreground'
+                "
                 @click="item.run"
             >
                 <component :is="item.icon" class="size-4" />
@@ -142,18 +196,36 @@ onBeforeUnmount(() => editor.value?.destroy());
 
         <EditorContent :editor="editor" />
 
-        <footer class="flex flex-wrap items-center justify-between gap-2 border-t bg-muted/30 px-4 py-2 text-xs text-muted-foreground">
+        <footer
+            class="flex flex-wrap items-center justify-between gap-2 border-t bg-muted/30 px-4 py-2 text-xs text-muted-foreground"
+        >
             <span class="tabular-nums">
-                {{ counts.words.toLocaleString() }} {{ counts.words === 1 ? 'word' : 'words' }},
-                {{ counts.characters.toLocaleString() }} characters, about {{ minutes }} min to read
+                {{ counts.words.toLocaleString() }}
+                {{ counts.words === 1 ? 'word' : 'words' }},
+                {{ counts.characters.toLocaleString() }} characters, about
+                {{ minutes }} min to read
             </span>
-            <span v-if="editable" class="hidden items-center gap-1 sm:inline-flex">
-                <kbd class="rounded border bg-background px-1.5 py-0.5 font-mono text-[0.65rem]">Ctrl</kbd>
-                <kbd class="rounded border bg-background px-1.5 py-0.5 font-mono text-[0.65rem]">S</kbd>
+            <span
+                v-if="editable"
+                class="hidden items-center gap-1 sm:inline-flex"
+            >
+                <kbd
+                    class="rounded border bg-background px-1.5 py-0.5 font-mono text-[0.65rem]"
+                    >Ctrl</kbd
+                >
+                <kbd
+                    class="rounded border bg-background px-1.5 py-0.5 font-mono text-[0.65rem]"
+                    >S</kbd
+                >
                 saves now
             </span>
         </footer>
 
-        <LinkDialog v-model:open="linkDialogOpen" :initial-url="linkInitialUrl" @save="saveLink" @remove="removeLink" />
+        <LinkDialog
+            v-model:open="linkDialogOpen"
+            :initial-url="linkInitialUrl"
+            @save="saveLink"
+            @remove="removeLink"
+        />
     </div>
 </template>

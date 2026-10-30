@@ -41,7 +41,7 @@ class DatabaseSeeder extends Seeder
         $names = ['Maya Chen', 'Daniel Okafor', 'Priya Nair', 'Lucas Moreau', 'Sara Ahmed', 'Tom Becker', 'Elena Rossi', 'Omar Haddad'];
 
         return collect($names)->mapWithKeys(function (string $name, int $index) {
-            $first = strtolower(strtok($name, ' '));
+            $first = strtolower(explode(' ', $name)[0]);
 
             return [$first => User::factory()->create([
                 'name' => $name,
