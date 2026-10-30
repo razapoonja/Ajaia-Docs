@@ -2,6 +2,8 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Document;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -43,6 +45,30 @@ class HandleInertiaRequests extends Middleware
                 'isAdmin' => (bool) $request->user()?->is_admin,
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            'sidebar' => fn (): ?array => $request->user() ? $this->sidebar($request->user()) : null,
+        ];
+    }
+
+    /**
+     * Library counts and recent documents for the app sidebar.
+     * Lazy, so partial reloads such as autosave never run these queries.
+     *
+     * @return array{counts: array{owned: int, shared: int}, recent: array<int, array{id: int, title: string}>}
+     */
+    private function sidebar(User $user): array
+    {
+        return [
+            'counts' => [
+                'owned' => $user->ownedDocuments()->count(),
+                'shared' => $user->documentShares()->count(),
+            ],
+            'recent' => Document::query()
+                ->accessibleBy($user)
+                ->latest('updated_at')
+                ->limit(5)
+                ->get(['id', 'title'])
+                ->map(fn (Document $document): array => ['id' => $document->id, 'title' => $document->title])
+                ->all(),
         ];
     }
 }

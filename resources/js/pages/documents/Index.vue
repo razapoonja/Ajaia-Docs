@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head, router, usePage } from '@inertiajs/vue3';
 import { FileText, Plus, Search, Users } from '@lucide/vue';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { index, store } from '@/actions/App/Http/Controllers/Documents/DocumentController';
 import DocumentCard from '@/components/documents/DocumentCard.vue';
 import ImportDocumentButton from '@/components/documents/ImportDocumentButton.vue';
@@ -23,7 +23,24 @@ type Scope = 'all' | 'owned' | 'shared';
 const page = usePage();
 const creating = ref(false);
 const query = ref('');
-const scope = ref<Scope>('all');
+
+function scopeFromUrl(url: string): Scope {
+    const value = new URLSearchParams(url.split('?')[1] ?? '').get('scope');
+
+    return value === 'owned' || value === 'shared' ? value : 'all';
+}
+
+const scope = ref<Scope>(scopeFromUrl(page.url));
+
+watch(
+    () => page.url,
+    (url) => (scope.value = scopeFromUrl(url)),
+);
+
+function selectScope(value: Scope): void {
+    scope.value = value;
+    router.get(index.url(value === 'all' ? {} : { query: { scope: value } }), {}, { preserveState: true, preserveScroll: true, replace: true, only: ['sidebar'] });
+}
 
 const roleLabel: Record<ShareRole, string> = {
     viewer: 'Can view',
@@ -103,7 +120,7 @@ function createDocument(): void {
                     :aria-selected="scope === option.value"
                     class="cursor-pointer rounded-md px-3 py-1.5 text-sm font-medium transition-colors"
                     :class="scope === option.value ? 'bg-primary text-primary-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'"
-                    @click="scope = option.value"
+                    @click="selectScope(option.value)"
                 >
                     {{ option.label }}
                 </button>

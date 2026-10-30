@@ -20,6 +20,10 @@ declare module '@inertiajs/core' {
             name: string;
             auth: Auth;
             sidebarOpen: boolean;
+            sidebar: {
+                counts: { owned: number; shared: number };
+                recent: Array<{ id: number; title: string }>;
+            } | null;
             [key: string]: unknown;
         };
     }
