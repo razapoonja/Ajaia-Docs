@@ -52,7 +52,7 @@ const groups: Tool[][] = [
     <div
         role="toolbar"
         aria-label="Formatting"
-        class="flex flex-wrap items-center gap-1 border-b bg-card px-2 py-1.5"
+        class="sticky top-0 z-10 flex flex-wrap items-center gap-0.5 border-b bg-card/95 px-2 py-1.5 backdrop-blur supports-[backdrop-filter]:bg-card/80"
     >
         <template v-for="(group, index) in groups" :key="index">
             <Separator v-if="index > 0" orientation="vertical" class="mx-1 h-5!" />
@@ -65,7 +65,7 @@ const groups: Tool[][] = [
                 :aria-label="tool.label"
                 :aria-pressed="tool.active?.() ?? undefined"
                 :disabled="tool.disabled?.() ?? false"
-                :class="tool.active?.() ? 'bg-accent text-accent-foreground' : 'text-muted-foreground'"
+                :class="tool.active?.() ? 'bg-accent text-accent-foreground shadow-[inset_0_0_0_1px_var(--border)]' : 'text-muted-foreground hover:text-foreground'"
                 :title="tool.label"
                 @click="tool.run"
             >

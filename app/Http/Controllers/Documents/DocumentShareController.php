@@ -19,12 +19,16 @@ class DocumentShareController extends Controller
 
         $collaborator = User::where('email', $request->validated('email'))->firstOrFail();
 
-        $document->shares()->updateOrCreate(
+        $share = $document->shares()->updateOrCreate(
             ['user_id' => $collaborator->id],
             ['role' => $request->validated('role')],
         );
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => "Shared with {$collaborator->name}."]);
+        $message = $share->wasRecentlyCreated
+            ? "Shared with {$collaborator->name}."
+            : "Updated access for {$collaborator->name}.";
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => $message]);
 
         return back();
     }

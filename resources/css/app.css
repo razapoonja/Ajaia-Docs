@@ -251,3 +251,11 @@
         animation-duration: 0ms !important;
     }
 }
+
+.editor-prose ::selection {
+    background: color-mix(in oklab, var(--primary) 18%, transparent);
+}
+
+.editor-prose:focus-visible {
+    outline: none;
+}

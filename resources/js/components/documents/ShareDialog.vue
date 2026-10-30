@@ -4,7 +4,6 @@ import { Share2, X } from '@lucide/vue';
 import { ref } from 'vue';
 import { destroy as destroyShare, store as storeShare } from '@/actions/App/Http/Controllers/Documents/DocumentShareController';
 import InputError from '@/components/InputError.vue';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -32,22 +31,31 @@ const props = defineProps<{
 
 const open = ref(false);
 const removingId = ref<number | null>(null);
+const updatingId = ref<number | null>(null);
 
 const form = useForm<{ email: string; role: ShareRole }>({
     email: '',
     role: 'viewer',
 });
 
-const roleLabel: Record<ShareRole, string> = {
-    viewer: 'Can view',
-    editor: 'Can edit',
-};
-
 function submit(): void {
     form.post(storeShare.url({ document: props.documentId }), {
         preserveScroll: true,
         onSuccess: () => form.reset('email'),
     });
+}
+
+function changeRole(share: DocumentShare, role: ShareRole): void {
+    if (role === share.role) {
+        return;
+    }
+
+    updatingId.value = share.id;
+    router.post(
+        storeShare.url({ document: props.documentId }),
+        { email: share.user.email, role },
+        { preserveScroll: true, onFinish: () => (updatingId.value = null) },
+    );
 }
 
 function remove(share: DocumentShare): void {
@@ -120,8 +128,20 @@ function remove(share: DocumentShare): void {
                             <p class="truncate text-sm font-medium">{{ share.user.name }}</p>
                             <p class="truncate text-xs text-muted-foreground">{{ share.user.email }}</p>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <Badge variant="secondary">{{ roleLabel[share.role] }}</Badge>
+                        <div class="flex items-center gap-1">
+                            <Select
+                                :model-value="share.role"
+                                :disabled="updatingId === share.id"
+                                @update:model-value="(role) => changeRole(share, role as ShareRole)"
+                            >
+                                <SelectTrigger size="sm" class="h-8 w-28 text-xs" :aria-label="`Access level for ${share.user.name}`">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="viewer">Can view</SelectItem>
+                                    <SelectItem value="editor">Can edit</SelectItem>
+                                </SelectContent>
+                            </Select>
                             <Button
                                 type="button"
                                 variant="ghost"

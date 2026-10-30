@@ -7,9 +7,9 @@ import { Button } from '@/components/ui/button';
 import { login, register } from '@/routes';
 
 const demoAccounts = [
-    { email: 'alice@example.com', note: 'owns the shared roadmap' },
-    { email: 'bob@example.com', note: 'can edit it' },
-    { email: 'carol@example.com', note: 'can only view it' },
+    { email: 'alice@example.com', note: 'Owns the shared roadmap, admin' },
+    { email: 'bob@example.com', note: 'Can edit the roadmap' },
+    { email: 'carol@example.com', note: 'Can only view the roadmap' },
 ];
 </script>
 
@@ -73,14 +73,20 @@ const demoAccounts = [
                 </div>
             </section>
 
-            <section class="rounded-xl border border-dashed p-5 text-sm">
+            <section class="max-w-xl rounded-xl border border-dashed p-5 text-sm">
                 <p class="font-medium">Reviewing this build?</p>
                 <p class="mt-1 text-muted-foreground">
-                    Three seeded accounts share the password <code class="rounded bg-muted px-1.5 py-0.5">password</code>.
+                    Three seeded accounts share the password
+                    <code class="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">password</code>
                 </p>
-                <ul class="mt-3 grid gap-1 sm:grid-cols-3">
-                    <li v-for="account in demoAccounts" :key="account.email" class="text-muted-foreground">
-                        <code class="text-foreground">{{ account.email }}</code> · {{ account.note }}
+                <ul class="mt-4 divide-y rounded-lg border bg-card">
+                    <li
+                        v-for="account in demoAccounts"
+                        :key="account.email"
+                        class="flex flex-col gap-0.5 px-3 py-2 sm:flex-row sm:items-center sm:justify-between"
+                    >
+                        <code class="font-mono text-xs text-foreground">{{ account.email }}</code>
+                        <span class="text-xs text-muted-foreground">{{ account.note }}</span>
                     </li>
                 </ul>
             </section>

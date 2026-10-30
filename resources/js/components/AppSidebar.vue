@@ -1,7 +1,10 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
-import { FileText } from '@lucide/vue';
+import { Link, usePage } from '@inertiajs/vue3';
+import { FileText, ShieldCheck } from '@lucide/vue';
+import { computed } from 'vue';
+import { index as documents } from '@/actions/App/Http/Controllers/Documents/DocumentController';
 import AppLogo from '@/components/AppLogo.vue';
+import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
 import {
@@ -13,8 +16,9 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { index as documents } from '@/actions/App/Http/Controllers/Documents/DocumentController';
 import type { NavItem } from '@/types';
+
+const page = usePage();
 
 const mainNavItems: NavItem[] = [
     {
@@ -23,6 +27,12 @@ const mainNavItems: NavItem[] = [
         icon: FileText,
     },
 ];
+
+const footerNavItems = computed<NavItem[]>(() =>
+    page.props.auth.isAdmin
+        ? [{ title: 'Admin panel', href: '/admin', icon: ShieldCheck }]
+        : [],
+);
 </script>
 
 <template>
@@ -44,6 +54,7 @@ const mainNavItems: NavItem[] = [
         </SidebarContent>
 
         <SidebarFooter>
+            <NavFooter v-if="footerNavItems.length" :items="footerNavItems" />
             <NavUser />
         </SidebarFooter>
     </Sidebar>
