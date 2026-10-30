@@ -11,7 +11,7 @@
 | Live app          | https://ajaia-docs.razapoonja.com                                     |
 | Admin panel       | https://ajaia-docs.razapoonja.com/admin (log in as alice@example.com) |
 | Source            | https://github.com/razapoonja/Ajaia-Docs                              |
-| Walkthrough video | see `VIDEO.txt`                                                       |
+| Walkthrough video | https://www.loom.com/share/8192d351430c49738cf6845cd31c31ad |
 
 ## Test accounts
 
