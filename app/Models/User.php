@@ -6,6 +6,8 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
@@ -41,5 +43,17 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function ownedDocuments(): HasMany
+    {
+        return $this->hasMany(Document::class, 'owner_id');
+    }
+
+    public function sharedDocuments(): BelongsToMany
+    {
+        return $this->belongsToMany(Document::class, 'document_shares')
+            ->withPivot('role')
+            ->withTimestamps();
     }
 }
