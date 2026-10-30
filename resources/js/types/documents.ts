@@ -3,6 +3,7 @@ export type ShareRole = 'viewer' | 'editor';
 export type OwnedDocumentSummary = {
     id: number;
     title: string;
+    excerpt: string;
     updated_at: string;
     shares_count: number;
 };
@@ -10,6 +11,7 @@ export type OwnedDocumentSummary = {
 export type SharedDocumentSummary = {
     id: number;
     title: string;
+    excerpt: string;
     updated_at: string;
     owner: string;
     role: ShareRole;

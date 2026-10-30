@@ -2,16 +2,19 @@
 
 namespace App\Models;
 
+use App\Actions\SanitizeDocumentHtml;
 use App\Enums\ShareRole;
 use Database\Factories\DocumentFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 
 /**
  * @property int $id
@@ -27,6 +30,16 @@ class Document extends Model
 {
     /** @use HasFactory<DocumentFactory> */
     use HasFactory;
+
+    /**
+     * Content is sanitized on every write, whichever path it arrives by.
+     *
+     * @return Attribute<string|null, string|null>
+     */
+    protected function content(): Attribute
+    {
+        return Attribute::make(set: fn (?string $value): ?string => app(SanitizeDocumentHtml::class)($value));
+    }
 
     public function owner(): BelongsTo
     {
@@ -45,6 +58,22 @@ class Document extends Model
             ->withTimestamps();
     }
 
+    /**
+     * Plain-text preview of the document body for list views.
+     */
+    public function excerpt(int $limit = 180): string
+    {
+        $text = html_entity_decode(strip_tags(str_replace(['</p>', '</li>', '</h1>', '</h2>', '</h3>', '<br>'], ' ', (string) $this->content)));
+
+        $text = Str::squish($text);
+
+        if ($this->title !== '' && Str::startsWith($text, $this->title)) {
+            $text = ltrim(Str::after($text, $this->title));
+        }
+
+        return Str::limit($text, $limit);
+    }
+
     public function isOwnedBy(User $user): bool
     {
         return $this->owner_id === $user->id;
@@ -52,8 +81,9 @@ class Document extends Model
 
     public function shareRoleFor(User $user): ?ShareRole
     {
-        $share = $this->shares->firstWhere('user_id', $user->id)
-            ?? $this->shares()->where('user_id', $user->id)->first();
+        $share = $this->relationLoaded('shares')
+            ? $this->shares->firstWhere('user_id', $user->id)
+            : $this->shares()->where('user_id', $user->id)->first(['id', 'role']);
 
         return $share?->role;
     }

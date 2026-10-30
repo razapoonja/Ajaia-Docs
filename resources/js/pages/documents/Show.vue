@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { Head, router, setLayoutProps } from '@inertiajs/vue3';
-import { useDebounceFn } from '@vueuse/core';
+import { useEventListener } from '@vueuse/core';
 import { AlertCircle, Check, Loader2, Pencil, Trash2 } from '@lucide/vue';
 import { computed, ref, watchEffect } from 'vue';
 import { destroy, index, show, update } from '@/actions/App/Http/Controllers/Documents/DocumentController';
 import DocumentEditor from '@/components/documents/DocumentEditor.vue';
+import ExportMenu from '@/components/documents/ExportMenu.vue';
 import ShareDialog from '@/components/documents/ShareDialog.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -56,17 +57,60 @@ function persist(payload: Partial<{ title: string; content: string }>): void {
     router.patch(updateUrl, payload, {
         preserveScroll: true,
         preserveState: true,
+        // Autosave only needs to know it worked; skip re-sending the document body.
+        only: ['permissions'],
         onSuccess: () => (saveState.value = 'saved'),
         onError: () => (saveState.value = 'error'),
     });
 }
 
-const persistContent = useDebounceFn(() => persist({ content: content.value }), 800);
+let saveTimer: ReturnType<typeof setTimeout> | undefined;
+
+function flushContent(): void {
+    clearTimeout(saveTimer);
+    if (saveState.value === 'dirty' || saveState.value === 'error') {
+        persist({ content: content.value });
+    }
+}
 
 function onContentChange(html: string): void {
     content.value = html;
     saveState.value = 'dirty';
-    void persistContent();
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(flushContent, 800);
+}
+
+useEventListener(window, 'keydown', (event: KeyboardEvent) => {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') {
+        event.preventDefault();
+        if (props.permissions.update) {
+            flushContent();
+        }
+    }
+});
+
+useEventListener(window, 'beforeunload', (event: BeforeUnloadEvent) => {
+    if (saveState.value === 'dirty' || saveState.value === 'saving') {
+        event.preventDefault();
+    }
+});
+
+const collaborators = computed(() => [
+    { id: props.document.owner.id, name: props.document.owner.name, label: 'Owner' },
+    ...props.shares.map((share) => ({
+        id: share.user.id,
+        name: share.user.name,
+        label: share.role === 'editor' ? 'Can edit' : 'Can view',
+    })),
+]);
+
+function initials(name: string): string {
+    return name
+        .split(' ')
+        .map((part) => part[0])
+        .join('')
+        .slice(0, 2)
+        .toUpperCase();
 }
 
 function onTitleBlur(): void {
@@ -131,8 +175,26 @@ function deleteDocument(): void {
             </div>
 
             <div class="flex shrink-0 items-center gap-2">
+                <ul class="mr-1 flex -space-x-2" aria-label="People with access">
+                    <li
+                        v-for="person in collaborators.slice(0, 4)"
+                        :key="person.id"
+                        :title="`${person.name} · ${person.label}`"
+                        class="flex size-8 items-center justify-center rounded-full border-2 border-background text-[0.65rem] font-semibold"
+                        :class="person.label === 'Owner' ? 'bg-primary text-primary-foreground' : 'bg-accent text-accent-foreground'"
+                    >
+                        {{ initials(person.name) }}
+                    </li>
+                    <li
+                        v-if="collaborators.length > 4"
+                        class="flex size-8 items-center justify-center rounded-full border-2 border-background bg-muted text-[0.65rem] font-semibold text-muted-foreground"
+                    >
+                        +{{ collaborators.length - 4 }}
+                    </li>
+                </ul>
                 <Badge v-if="!permissions.update" variant="outline">Can view</Badge>
                 <Badge v-else-if="!permissions.share" variant="outline">Can edit</Badge>
+                <ExportMenu :title="title" :content="content" />
                 <ShareDialog v-if="permissions.share" :document-id="document.id" :shares="shares" />
 
                 <Dialog v-if="permissions.delete">
